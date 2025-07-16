@@ -4,11 +4,16 @@ export class TodoPage {
   readonly page: Page;
   readonly newTodo: Locator;
   readonly todoItems: Locator;
+  readonly deleteTodo: Locator;
+  readonly allTasks: Locator;
+  readonly clearCompleted: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.newTodo = page.locator('.new-todo');
     this.todoItems = page.locator('.todo-list li');
+    this.allTasks = page.locator('.toggle-all');
+    this.clearCompleted = page.locator('.clear-completed')
   }
 
   async goto() {
@@ -22,7 +27,11 @@ export class TodoPage {
 
   async markTaskCompleted(label: string) {
     const task = this.page.locator(`.todo-list li:has-text("${label}")`);
-    await task.locator('.toggle').check();
+    await task.locator('.toggle').click();
+  }
+
+  async markAllTasks() {
+    await this.allTasks.click();
   }
 
   async editTask(oldLabel: string, newLabel: string) {
@@ -39,8 +48,14 @@ export class TodoPage {
     await task.locator('.destroy').click({ force: true });
   }
 
+  async clearCompletedTasks(){
+    if (await this.clearCompleted.isVisible() && await this.clearCompleted.isEnabled()) {
+      await this.clearCompleted.click();
+    };
+  }
+
   async filterBy(filter: 'All' | 'Active' | 'Completed') {
-    await this.page.locator(`footer >> text=${filter}`).click();
+    await this.page.locator('footer a', { hasText: filter}).click();
   }
 
   taskLabels() {
